@@ -148,51 +148,23 @@ document.addEventListener('DOMContentLoaded', async function() {
     renderAll();
 });
 
-// Charger SEED_DATA si localStorage est vide ou corrompu
-(function _ensureSeedData() {
-    var stored = localStorage.getItem(STORAGE_KEY);
-    var ok = false;
-    try {
-        if (stored) {
-            var d = JSON.parse(stored);
-            ok = d.projects && d.projects.length > 0 && d.tasks;
-        }
-    } catch(e) {}
-    if (!ok) {
-        localStorage.removeItem(STORAGE_KEY);
-    }
-})();
-
 /**
  * Initialise les données depuis localStorage.
  * Charge les données seed si c'est le premier lancement.
  */
 async function initData() {
-    try {
-        const serverData = await DB.read();
-        if (serverData && serverData.projects && serverData.projects.length > 0) {
-            appData = {
-                projects: serverData.projects,
-                tasks: serverData.tasks || []
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        } else if (!localStorage.getItem(STORAGE_KEY)) {
-            appData = JSON.parse(JSON.stringify(SEED_DATA));
-            await DB.write(appData);
-        } else {
-            const local = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            // Si localStorage est vide (projets et tâches vides), charger SEED_DATA
-            if (!local.projects || local.projects.length === 0) {
-                appData = JSON.parse(JSON.stringify(SEED_DATA));
-                await DB.write(appData);
-            } else {
-                appData = local;
+    var stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+        try {
+            appData = JSON.parse(stored);
+            if (!appData.projects || appData.projects.length === 0 || !appData.tasks) {
+                throw new Error('invalid data');
             }
-        }
-    } catch (e) {
-        console.error('Erreur localStorage:', e);
-        appData = JSON.parse(JSON.stringify(SEED_DATA));
+            return;
+        } catch(e) {}
     }
+    appData = JSON.parse(JSON.stringify(SEED_DATA));
+    await DB.write(appData);
 }
 
 /**
