@@ -148,17 +148,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     renderAll();
 });
 
-// Vérifier integrity au chargement : si localStorage est corrompu → force SEED
-(function checkDataIntegrity() {
+// Charger SEED_DATA si localStorage est vide ou corrompu
+(function _ensureSeedData() {
+    var stored = localStorage.getItem(STORAGE_KEY);
+    var ok = false;
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-            const d = JSON.parse(stored);
-            if (!d.projects || d.projects.length === 0 || !d.tasks) {
-                localStorage.removeItem(STORAGE_KEY);
-            }
+            var d = JSON.parse(stored);
+            ok = d.projects && d.projects.length > 0 && d.tasks;
         }
     } catch(e) {}
+    if (!ok) {
+        localStorage.removeItem(STORAGE_KEY);
+    }
 })();
 
 /**
@@ -445,6 +447,7 @@ function initForms() {
             priority: document.getElementById('taskPriority').value,
             status: status,
             assignedTo: document.getElementById('taskAssignedTo').value.trim(),
+            deadline: document.getElementById('taskDeadline').value || '',
             createdAt: id ? getTaskById(id).createdAt : new Date().toISOString(),
             completed: status === 'done',
             attachments: currentAttachments
@@ -773,6 +776,8 @@ function renderTasks() {
     const filterProject = document.getElementById('filterTaskProject').value;
     const filterStatus = document.getElementById('filterTaskStatus').value;
     const filterPriority = document.getElementById('filterTaskPriority').value;
+
+    console.log('[renderTasks] total appData.tasks:', appData.tasks.length, 'filterProject:', filterProject);
 
     // Filtrage
     var tasks = appData.tasks.slice();
