@@ -1371,66 +1371,7 @@ body {
     letter-spacing: 0.3px;
 }
 
-.template-dropdown {
-    position: relative;
-    display: inline-block;
-}
 
-.template-dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-lg);
-    z-index: 50;
-    min-width: 220px;
-    margin-top: 4px;
-    overflow: hidden;
-}
-
-.template-dropdown-menu.hidden {
-    display: none;
-}
-
-.template-dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    cursor: pointer;
-    transition: background 0.15s;
-    font-size: 0.9rem;
-}
-
-.template-dropdown-item:hover {
-    background: var(--bg-hover);
-}
-
-.template-dropdown-item .template-icon {
-    font-size: 1.2rem;
-}
-
-.template-dropdown-item .template-info {
-    flex: 1;
-}
-
-.template-dropdown-item .template-name {
-    font-weight: 500;
-    font-size: 0.85rem;
-}
-
-.template-dropdown-item .template-desc {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-}
-
-.project-template-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
 
 /* ─── Tags ───────────────────────────────────────── */
 .task-tags {
@@ -1857,65 +1798,7 @@ body {
 
 
 
-/* ─── 2. TEMPLATES ─────────────────────────────────── */
 
-.template-dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.template-dropdown .hidden {
-    display: none !important;
-}
-
-#projectTemplateMenu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    z-index: 200;
-    max-height: 250px;
-    overflow-y: auto;
-    margin-top: 4px;
-}
-
-.template-option {
-    display: block;
-    width: 100%;
-    padding: 10px 16px;
-    text-align: left;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 0.85rem;
-    color: var(--text-primary);
-    transition: background 0.15s;
-    border-bottom: 1px solid var(--border);
-}
-
-.template-option:last-child {
-    border-bottom: none;
-}
-
-.template-option:hover {
-    background: var(--bg-hover);
-}
-
-.template-option strong {
-    display: block;
-    font-size: 0.9rem;
-    margin-bottom: 2px;
-}
-
-.template-option span {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-}
 
 /* ─── 3. TAGS / ÉTIQUETTES ────────────────────────── */
 

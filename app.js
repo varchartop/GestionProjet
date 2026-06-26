@@ -1054,7 +1054,7 @@ function getStatusLabel(status) {
 function formatDate(dateStr) {
     if (!dateStr) return '';
     try {
-        return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+        return new Date(dateStr).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     } catch (_) { return dateStr; }
 }
 
