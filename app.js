@@ -148,6 +148,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     renderAll();
 });
 
+// Vérifier integrity au chargement : si localStorage a des données mais projets vides → force SEED
+(function checkDataIntegrity() {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            const d = JSON.parse(stored);
+            if (!d.projects || d.projects.length === 0) {
+                localStorage.removeItem(STORAGE_KEY);
+            }
+        }
+    } catch(e) {}
+})();
+
 /**
  * Initialise les données depuis localStorage.
  * Charge les données seed si c'est le premier lancement.
