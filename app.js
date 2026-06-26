@@ -701,8 +701,8 @@ window.removeAttachment = function(i) {
 function renderAll() {
     renderDashboard();
     renderProjects();
-    renderTasks();
     populateFilterProjects();
+    renderTasks();
 }
 
 // ─── 15a. DASHBOARD ──────────────────────────────────
@@ -794,7 +794,6 @@ function renderTasks() {
 
     var tasks = getActiveTasks();
     if (filterProject) tasks = tasks.filter(function(t) { return t.projectId === filterProject; });
-    if (filterStatus) tasks = tasks.filter(function(t) { return t.status === filterStatus; });
     if (filterPriority) tasks = tasks.filter(function(t) { return t.priority === filterPriority; });
 
     // Sort: incomplete first, then deadline, then priority
@@ -830,60 +829,104 @@ function renderTasks() {
     });
     if (sortDir === -1) tasks.reverse();
 
+    // Kanban columns
+    var columns = [
+        { id: 'todo', label: 'À faire', tasks: [] },
+        { id: 'in_progress', label: 'En cours', tasks: [] },
+        { id: 'done', label: 'Terminé', tasks: [] }
+    ];
+
+    tasks.forEach(function(t) {
+        var col = columns.find(function(c) { return c.id === t.status; });
+        if (col) col.tasks.push(t);
+    });
+
     if (tasks.length === 0) {
         container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Aucune tâche trouvée</p></div>';
         return;
     }
 
-    container.innerHTML = tasks.map(function(t) { return renderTaskItem(t); }).join('');
+    container.innerHTML = '<div class="kanban-columns">' + columns.map(function(col) {
+        return '<div class="kanban-column" data-status="' + col.id + '">' +
+            '<div class="kanban-column-header">' +
+                '<span class="kanban-dot ' + col.id + '"></span>' +
+                '<h3>' + col.label + '</h3>' +
+                '<span class="kanban-count">' + col.tasks.length + '</span>' +
+            '</div>' +
+            '<div class="kanban-dropzone" data-status="' + col.id + '">' +
+                col.tasks.map(function(t) { return renderTaskItem(t); }).join('') +
+                (col.tasks.length === 0 ? '<div class="kanban-empty">Aucune tâche</div>' : '') +
+            '</div>' +
+        '</div>';
+    }).join('') + '</div>';
+
+    // Drag & drop
+    initKanbanDrag();
+}
+
+function initKanbanDrag() {
+    var dropzones = document.querySelectorAll('.kanban-dropzone');
+    dropzones.forEach(function(zone) {
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', function() {
+            zone.classList.remove('drag-over');
+        });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            var taskId = e.dataTransfer.getData('text/plain');
+            var newStatus = zone.dataset.status;
+            var task = getTaskById(taskId);
+            if (task && task.status !== newStatus) {
+                task.status = newStatus;
+                if (newStatus === 'done') { task.completed = true; }
+                else { task.completed = false; }
+                saveData();
+                renderAll();
+                showToast('Tâche déplacée → ' + getStatusLabel(newStatus), 'success');
+            }
+        });
+    });
 }
 
 function renderTaskItem(t) {
     var project = getProjectById(t.projectId);
-    var pIcon = project ? '📁' : '📁';
+    var pIcon = '📁';
     var pColor = project ? project.color : '#6366f1';
     var pName = project ? project.name : 'Projet supprimé';
     var nameParts = t.assignedTo ? t.assignedTo.trim().split(' ') : [];
     var shortName = nameParts[0] || '';
-    var hasTags = t.tags && t.tags.length > 0;
-    var hasAttach = (t.attachments || []).length > 0;
-    var hasSubs = (t.subtasks || []).length > 0;
 
     var deadlineStr = '';
     if (t.deadline) {
         var dd = new Date(t.deadline);
         var now = new Date();
         var diff = Math.ceil((dd - now) / 86400000);
-        if (diff < 0) deadlineStr = '<span style="color:#ef4444;font-weight:500;">En retard (' + Math.abs(diff) + 'j)</span>';
-        else if (diff === 0) deadlineStr = '<span style="color:#f59e0b;font-weight:500;">Aujourd\'hui</span>';
-        else if (diff <= 3) deadlineStr = '<span style="color:#f59e0b;">' + diff + 'j</span>';
+        if (diff < 0) deadlineStr = '<span class="deadline-overdue">En retard (' + Math.abs(diff) + 'j)</span>';
+        else if (diff === 0) deadlineStr = '<span class="deadline-today">Aujourd\'hui</span>';
+        else if (diff <= 3) deadlineStr = '<span class="deadline-soon">' + diff + 'j</span>';
         else deadlineStr = formatDate(t.deadline);
     }
 
-    return '<div class="task-card priority-' + t.priority + (t.completed ? ' completed' : '') + '">' +
-        '<div class="task-card-left">' +
-            '<div class="task-checkbox' + (t.completed ? ' checked' : '') + '" onclick="event.stopPropagation();toggleTask(\'' + t.id + '\')">' +
-                (t.completed ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>' : '') +
+    return '<div class="task-item priority-' + t.priority + '" draggable="true" data-task-id="' + t.id + '" ondragstart="event.dataTransfer.setData(\'text/plain\', \'' + t.id + '\')">' +
+        '<span class="priority-dot ' + t.priority + '"></span>' +
+        '<div class="task-item-content">' +
+            '<div class="task-item-title" onclick="openTaskModal(getTaskById(\'' + t.id + '\'))">' + escapeHtml(t.title) + '</div>' +
+            '<div class="task-item-meta">' +
+                '<span class="project-tag" style="background:' + pColor + '15;color:' + pColor + ';">' + escapeHtml(pName) + '</span>' +
+                (deadlineStr ? ' ' + deadlineStr : '') +
             '</div>' +
-            '<span class="priority-dot ' + t.priority + '"></span>' +
-            '<div class="task-card-title" onclick="openTaskModal(getTaskById(\'' + t.id + '\'))">' + escapeHtml(t.title) + '</div>' +
         '</div>' +
-        '<div class="task-card-meta">' +
-            '<span class="project-tag" style="background:' + pColor + '15;color:' + pColor + ';">' + pIcon + ' ' + escapeHtml(pName) + '</span>' +
-            deadlineStr +
+        '<div class="task-item-actions">' +
+            (t.assignedTo ? '<span class="task-assigned">' + escapeHtml(shortName) + '</span>' : '') +
+            '<button class="task-drag-handle" title="Déplacer">⋮⋮</button>' +
+            '<button class="edit-btn" onclick="editTask(\'' + t.id + '\')" title="Modifier">✎</button>' +
+            '<button class="delete-btn" onclick="deleteTaskConfirm(\'' + t.id + '\')" title="Supprimer">✕</button>' +
         '</div>' +
-        '<div class="task-card-right">' +
-            (t.assignedTo ? '<span style="font-size:0.65rem;color:var(--text-secondary);background:var(--bg-card);padding:2px 6px;border-radius:8px;border:1px solid var(--border);">' + escapeHtml(shortName) + '</span>' : '') +
-            '<span class="status-badge ' + t.status + '">' + getStatusLabel(t.status) + '</span>' +
-            '<button class="edit-btn" onclick="event.stopPropagation();editTask(\'' + t.id + '\')" title="Modifier">✎</button>' +
-            '<button class="delete-btn" onclick="event.stopPropagation();deleteTaskConfirm(\'' + t.id + '\')" title="Supprimer">✕</button>' +
-        '</div>' +
-    '</div>' +
-    (hasTags || hasAttach || hasSubs ? '<div style="padding:0 16px 6px;display:flex;gap:4px;flex-wrap:wrap;">' +
-        (hasTags ? t.tags.slice(0, 3).map(function(tag) { return '<span class="tag-pill">' + escapeHtml(tag) + '</span>'; }).join('') : '') +
-        (hasAttach ? '<span style="font-size:0.7rem;">📎 ' + t.attachments.length + '</span>' : '') +
-        (hasSubs ? '<span style="font-size:0.7rem;">☑ ' + t.subtasks.filter(function(s){return s.completed;}).length + '/' + t.subtasks.length + '</span>' : '') +
-    '</div>' : '');
+    '</div>';
 }
 
 // ─── 16. TASK ACTIONS ────────────────────────────────
