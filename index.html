@@ -28,18 +28,7 @@
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
                 Tâches
             </button>
-            <button class="nav-tab" data-tab="timeline">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="2"/><rect x="3" y="10" width="18" height="2"/><rect x="3" y="16" width="18" height="2"/></svg>
-                Timeline
-            </button>
-            <button class="nav-tab" data-tab="calendar">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                Calendrier
-            </button>
-            <button class="nav-tab" data-tab="corbeille">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
-                Corbeille
-            </button>
+
         </div>
         <div class="nav-actions">
             <!-- Search icon in header -->
@@ -73,20 +62,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
             Tâches
         </button>
-        <button class="mobile-nav-item" data-tab="timeline">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="2"/><rect x="3" y="10" width="18" height="2"/><rect x="3" y="16" width="18" height="2"/></svg>
-            Timeline
-        </button>
-        <button class="mobile-nav-item" data-tab="calendar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            Calendrier
-        </button>
-        <div class="mobile-nav-divider"></div>
-        <div class="mobile-nav-label">Autres</div>
-        <button class="mobile-nav-item" data-tab="corbeille">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
-            Corbeille
-        </button>
+
     </div>
 
     <!-- ═══ Search Overlay ═══ -->
@@ -254,36 +230,6 @@
             </div>
 
             <div id="tasksList" class="tasks-list"></div>
-        </section>
-
-        <!-- ─── Timeline / Gantt Tab ─── -->
-        <section id="timeline" class="tab-content">
-            <div class="page-header">
-                <h1 class="page-title">Timeline — Diagramme de Gantt</h1>
-            </div>
-            <div id="ganttChart" class="gantt-chart card"></div>
-        </section>
-
-        <!-- ─── Calendar Tab ─── -->
-        <section id="calendar" class="tab-content">
-            <div class="calendar-container card">
-                <div class="calendar-header">
-                    <div class="calendar-nav">
-                        <button class="calendar-nav-btn" id="calendarPrev">‹</button>
-                        <span class="calendar-month-label" id="calendarMonthLabel"></span>
-                        <button class="calendar-nav-btn" id="calendarNext">›</button>
-                    </div>
-                    <button class="btn btn-sm btn-secondary calendar-today-btn" id="calendarToday">Aujourd'hui</button>
-                </div>
-                <div class="calendar-grid" id="calendarGrid"></div>
-            </div>
-        </section>
-
-        <!-- ─── Corbeille Tab ─── -->
-        <section id="corbeille" class="tab-content">
-            <h1 class="page-title">�️ Corbeille</h1>
-            <p style="color:var(--text-muted);margin-bottom:20px;">Les éléments supprimés sont conservés 30 jours avant suppression définitive.</p>
-            <div id="corbeilleContent"></div>
         </section>
 
     </main>
@@ -486,19 +432,6 @@
             </form>
         </div>
     </div>
-
-    <!-- ═══ Modal: Calendar Day Events ═══ -->
-    <div id="calendarDayModal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content modal-sm">
-            <div class="modal-header">
-                <h3 id="calendarDayModalTitle">Événements du jour</h3>
-                <button class="modal-close" data-close>&times;</button>
-            </div>
-            <div class="calendar-day-events" id="calendarDayEvents"></div>
-        </div>
-    </div>
-
 
     <!-- ═══ Toast Container ═══ -->
     <div id="toastContainer" class="toast-container"></div>

@@ -805,121 +805,12 @@ body {
     cursor: grabbing;
 }
 
-/* ─── Gantt Chart ───────────────────────────────── */
-.gantt-chart {
-    overflow-x: auto;
-    padding: 20px;
-}
+/* ─── Search Overlay ────────────────────────────── */
 
--gantt-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-}
 
-.gantt-header-title {
-    font-weight: 600;
-    font-size: 1rem;
-    min-width: 120px;
-    flex-shrink: 0;
-}
 
-.gantt-months {
-    display: flex;
-    flex: 1;
-    min-width: 0;
-}
 
-.gantt-month {
-    flex: 1;
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    border-left: 1px solid var(--border);
-    padding: 4px 0;
-}
 
-.gantt-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-    min-height: 36px;
-}
-
-.gantt-row-title {
-    min-width: 120px;
-    flex-shrink: 0;
-    font-size: 0.85rem;
-    font-weight: 500;
-    padding-right: 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.gantt-row-bar-container {
-flex: 1;
-position: relative;
-height: 28px;
-min-width: 0;
-}
-
-/* Gantt scrollable wrapper */
-.gantt-chart-wrapper {
-overflow-x: auto;
--webkit-overflow-scrolling: touch;
-}
-
-.gantt-row-title {
-    min-width: 150px;
-    flex-shrink: 0;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.gantt-header-title {
-min-width: 100px;
-flex-shrink: 0;
-font-size: 0.75rem;
-}
-
-.gantt-row-bar {
-    position: absolute;
-    height: 24px;
-    top: 2px;
-    border-radius: 4px;
-    min-width: 4px;
-    transition: all 0.3s ease;
-    opacity: 0.85;
-}
-
-.gantt-row-bar:hover {
-    opacity: 1;
-}
-
-.gantt-today-marker {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--danger);
-    z-index: 10;
-    pointer-events: none;
-}
-
-.gantt-today-label {
-    position: absolute;
-    top: -18px;
-    transform: translateX(-50%);
-    font-size: 0.65rem;
-    color: var(--danger);
-    font-weight: 600;
-    white-space: nowrap;
-}
 
 /* ─── Search Overlay ────────────────────────────── */
 .search-overlay {
@@ -1336,113 +1227,17 @@ font-size: 0.75rem;
 }
 
 /* ─── Gantt Chart ────────────────────────────────── */
-.gantt-chart {
-    overflow-x: auto;
-    padding: 20px;
-}
 
-.gantt-header {
-    display: flex;
-    align-items: stretch;
-    border-bottom: 2px solid var(--border);
-    margin-bottom: 12px;
-    min-width: 600px;
-}
 
-.gantt-header-title {
-    min-width: 120px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    padding: 8px 0;
-    display: flex;
-    align-items: center;
-}
 
-.gantt-months {
-    flex: 1;
-    position: relative;
-    height: 32px;
-    border-left: 1px solid var(--border);
-}
 
-.gantt-month {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    border-right: 1px solid var(--border);
-    overflow: hidden;
-}
 
-.gantt-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    min-width: 600px;
-}
 
-.gantt-row-title {
-    min-width: 120px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 12px;
-}
 
-.gantt-row-bar-container {
-    flex: 1;
-    position: relative;
-    height: 28px;
-    background: var(--bg-input);
-    border-radius: 4px;
-    overflow: visible;
-}
 
-.gantt-row-bar {
-    position: absolute;
-    top: 2px;
-    height: 24px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    min-width: 4px;
-    transition: opacity 0.2s;
-    z-index: 1;
-}
 
-.gantt-row-bar:hover {
-    opacity: 0.85;
-}
 
-.gantt-today-marker {
-    position: absolute;
-    top: -4px;
-    bottom: -4px;
-    width: 2px;
-    background: var(--danger);
-    z-index: 2;
-    pointer-events: none;
-}
 
-.gantt-today-label {
-    position: absolute;
-    top: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.65rem;
-    font-weight: 600;
-    color: var(--danger);
-    white-space: nowrap;
-}
 
 /* ─── Kanban Drag & Drop ────────────────────────── */
 .kanban-dropzone {
@@ -1538,13 +1333,7 @@ font-size: 0.75rem;
         max-width: 100%;
     }
 
-    .gantt-row-title {
-        min-width: 120px;
-    }
 
-    .gantt-header-title {
-        min-width: 120px;
-    }
 }
 
 @media (max-width: 320px) {
@@ -1562,51 +1351,12 @@ font-size: 0.75rem;
 }
 
 /* ─── Corbeille ──────────────────────────────────── */
-.corbeille-section {
-    margin-bottom: 32px;
-}
 
-.corbeille-section h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
 
-.corbeille-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: var(--bg-input);
-    border-radius: var(--radius-sm);
-    margin-bottom: 8px;
-    border-left: 3px solid var(--danger);
-}
 
-.corbeille-item-info {
-    flex: 1;
-    min-width: 0;
-}
 
-.corbeille-item-title {
-    font-weight: 500;
-    font-size: 0.9rem;
-}
 
-.corbeille-item-date {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-}
 
-.corbeille-item-actions {
-    display: flex;
-    gap: 6px;
-    flex-shrink: 0;
-}
 
 /* ─── Templates ──────────────────────────────────── */
 .template-badge {
@@ -2000,187 +1750,33 @@ font-size: 0.75rem;
 }
 
 /* ─── Calendar View ──────────────────────────────── */
-.calendar-container {
-    padding: 0;
-    -webkit-overflow-scrolling: touch;
-}
 
-.calendar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
 
-.calendar-nav {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
 
-.calendar-nav-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    color: var(--text-primary);
-    transition: all 0.2s;
-}
 
-.calendar-nav-btn:hover {
-    background: var(--bg-hover);
-}
 
-.calendar-month-label {
-    font-size: 1.1rem;
-    font-weight: 600;
-    min-width: 120px;
-    text-align: center;
-}
 
-.calendar-today-btn {
-    padding: 6px 14px;
-    font-size: 0.8rem;
-}
 
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    min-width: 0;
-}
 
-.calendar-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
 
-.calendar-day-header {
-    padding: 10px 4px;
-    text-align: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    background: var(--bg-input);
-}
 
-.calendar-day {
-    min-height: 100px;
-    padding: 6px;
-    background: var(--bg-card);
-    cursor: pointer;
-    transition: background 0.15s;
-}
 
-.calendar-day:hover {
-    background: var(--bg-hover);
-}
 
-.calendar-day.other-month {
-    background: var(--bg-main);
-}
 
-.calendar-day.other-month .calendar-day-number {
-    color: var(--text-muted);
-    opacity: 0.5;
-}
 
-.calendar-day.today {
-    background: var(--primary-light);
-}
 
-.calendar-day.today .calendar-day-number {
-    background: var(--primary);
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
-.calendar-day-number {
-    font-size: 0.8rem;
-    font-weight: 500;
-    margin-bottom: 4px;
-}
 
-.calendar-event {
-    font-size: 0.65rem;
-    padding: 2px 4px;
-    border-radius: 3px;
-    margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    background: var(--primary-light);
-    color: var(--primary);
-    cursor: pointer;
-}
 
-.calendar-event.project-event {
-    background: #fef3c7;
-    color: #d97706;
-}
 
-.calendar-event:hover {
-    opacity: 0.8;
-}
 
 /* Calendar Day Modal */
-.calendar-day-events {
-    padding: 0 24px 20px;
-}
 
-.calendar-day-event-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: var(--bg-input);
-    border-radius: var(--radius-sm);
-    margin-bottom: 6px;
-    cursor: pointer;
-    transition: background 0.15s;
-}
 
-.calendar-day-event-item:hover {
-    background: var(--bg-hover);
-}
 
-.calendar-day-event-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
 
-.calendar-day-event-text {
-    flex: 1;
-    font-size: 0.9rem;
-}
 
-.calendar-day-event-meta {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-}
 
-.calendar-day-empty {
-    text-align: center;
-    color: var(--text-muted);
-    padding: 20px;
-    font-size: 0.9rem;
-}
 
 /* ─── Sort Controls ──────────────────────────────── */
 .sort-controls {
@@ -2253,63 +1849,13 @@ font-size: 0.75rem;
 
 /* ─── 1. CORBEILLE ─────────────────────────────────── */
 
-.corbeille-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 20px;
-}
 
-.corbeille-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    transition: background 0.15s;
-}
 
-.corbeille-item:hover {
-    background: var(--bg-hover);
-}
 
-.corbeille-item-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-    min-width: 0;
-}
 
-.corbeille-item-type {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    white-space: nowrap;
-}
 
-.corbeille-item-name {
-    font-weight: 500;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
-.corbeille-item-date {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-}
 
-.corbeille-item-actions {
-    display: flex;
-    gap: 6px;
-    flex-shrink: 0;
-}
 
 /* ─── 2. TEMPLATES ─────────────────────────────────── */
 
@@ -2587,139 +2133,24 @@ font-size: 0.75rem;
 
 /* ─── 6. CALENDRIER ────────────────────────────────── */
 
-.calendar-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-}
 
-.calendar-nav-btn {
-    padding: 6px 12px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    color: var(--text-primary);
-    transition: background 0.15s;
-}
 
-.calendar-nav-btn:hover {
-    background: var(--bg-hover);
-}
 
-.calendar-month-label {
-    flex: 1;
-    text-align: center;
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--text-primary);
-    text-transform: capitalize;
-}
 
-.calendar-week-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0;
-}
 
-.calendar-day-header {
-    text-align: center;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-}
 
-.calendar-grid-body {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-}
 
-.calendar-day {
-    min-height: 80px;
-    padding: 6px;
-    background: var(--bg-primary);
-    cursor: pointer;
-    transition: background 0.15s;
-}
 
-.calendar-day:hover {
-    background: var(--bg-hover);
-}
 
-.calendar-day.other-month {
-    opacity: 0.3;
-}
 
-.calendar-day.today {
-    background: var(--primary-light);
-}
 
-.calendar-day.today .calendar-day-number {
-    background: var(--primary);
-    color: white;
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.75rem;
-}
 
-.calendar-day-number {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
 
-.calendar-day-events {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
 
-.calendar-event {
-    font-size: 0.6rem;
-    padding: 1px 4px;
-    border-radius: 3px;
-    color: white;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-}
 
-.calendar-more {
-    font-size: 0.6rem;
-    color: var(--text-muted);
-    padding: 1px 4px;
-}
 
 /* Day modal events */
-.calendar-day-event-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border-bottom: 1px solid var(--border);
-}
 
-.calendar-day-event-item:last-child {
-    border-bottom: none;
-}
 
 /* ─── 7. SORT DROPDOWN ─────────────────────────────── */
 
@@ -3084,21 +2515,8 @@ font-size: 0.75rem;
     }
 
     /* Corbeille */
-    .corbeille-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        padding: 12px;
-    }
 
-    .corbeille-item-info {
-        width: 100%;
-    }
 
-    .corbeille-item-actions {
-        width: 100%;
-        justify-content: flex-end;
-    }
 
     /* Task detail modal */
     .task-detail-grid {
@@ -3117,21 +2535,8 @@ font-size: 0.75rem;
     }
 
     /* Calendar */
-    .calendar-day {
-        min-height: 55px;
-        padding: 3px;
-    }
 
-    .calendar-day-number {
-        font-size: 0.65rem;
-        width: 18px;
-        height: 18px;
-    }
 
-    .calendar-event {
-        font-size: 0.55rem;
-        padding: 0 2px;
-    }
 
     /* Toast */
     .toast-container {
@@ -3166,13 +2571,7 @@ font-size: 0.75rem;
     }
 
     /* Gantt */
-    .gantt-row-title {
-        min-width: 120px;
-    }
 
-    .gantt-header-title {
-        min-width: 120px;
-    }
 
     /* Form */
     .form-row {
@@ -3262,16 +2661,7 @@ font-size: 0.75rem;
         display: block;
     }
 
-    .calendar-day {
-        min-height: 40px;
-        padding: 2px;
-    }
 
-    .calendar-day-number {
-        width: 16px;
-        height: 16px;
-        font-size: 0.6rem;
-    }
 }
 
 /* ─── Mobile Nav Visibility ────────────────────────── */
