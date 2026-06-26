@@ -331,55 +331,6 @@ function openConfirmModal(message, callback) {
     document.getElementById('confirmModal').classList.remove('hidden');
 }
 
-function openTaskDetail(taskId) {
-    var task = getTaskById(taskId);
-    if (!task) return;
-
-    var project = getProjectById(task.projectId);
-    var modal = document.getElementById('taskDetailModal');
-
-    document.getElementById('taskDetailId').value = task.id;
-    document.getElementById('taskDetailTitle').textContent = task.title;
-    document.getElementById('taskDetailProject').textContent = project ? project.name : 'Projet supprimé';
-    document.getElementById('taskDetailStatus').value = task.status;
-    document.getElementById('taskDetailPriority').value = task.priority;
-    document.getElementById('taskDetailAssignedTo').value = task.assignedTo || '';
-    document.getElementById('taskDetailDeadline').value = task.deadline || '';
-
-    // Tags
-    var tagsContainer = document.getElementById('taskDetailTags');
-    tagsContainer.innerHTML = '';
-    (task.tags || []).forEach(function(tag, i) {
-        var span = document.createElement('span');
-        span.className = 'tag-badge';
-        span.innerHTML = escapeHtml(tag) + ' <button type="button" onclick="removeDetailTag(' + i + ')" style="background:none;border:none;cursor:pointer;color:inherit;">×</button>';
-        tagsContainer.appendChild(span);
-    });
-
-    // Subtasks
-    renderDetailSubtasks(taskId);
-
-    // Delete button
-    document.getElementById('taskDetailDeleteBtn').onclick = function() {
-        closeAllModals();
-        deleteTaskConfirm(taskId);
-    };
-
-    // Save handler
-    document.getElementById('taskDetailForm').onsavehandler = function() {
-        task.status = document.getElementById('taskDetailStatus').value;
-        task.priority = document.getElementById('taskDetailPriority').value;
-        task.assignedTo = document.getElementById('taskDetailAssignedTo').value.trim();
-        task.deadline = document.getElementById('taskDetailDeadline').value || '';
-        saveData();
-        renderAll();
-        closeAllModals();
-        showToast('Tâche mise à jour', 'success');
-    };
-
-    modal.classList.remove('hidden');
-}
-
 // ─── 10. FORMS ───────────────────────────────────────
 function initForms() {
     // Project form
@@ -625,7 +576,7 @@ window.searchSelect = function(type, id) {
     document.getElementById('searchInput').value = '';
     if (type === 'task') {
         switchTab('tasks');
-        setTimeout(function() { openTaskDetail(id); }, 100);
+        setTimeout(function() { openTaskModal(getTaskById(id)); }, 100);
     } else {
         switchTab('projects');
     }
@@ -909,13 +860,13 @@ function renderTaskItem(t) {
         else deadlineStr = formatDate(t.deadline);
     }
 
-    return '<div class="task-card priority-' + t.priority + (t.completed ? ' completed' : '') + '" onclick="openTaskDetail(\'' + t.id + '\')">' +
+    return '<div class="task-card priority-' + t.priority + (t.completed ? ' completed' : '') + '">' +
         '<div class="task-card-left">' +
             '<div class="task-checkbox' + (t.completed ? ' checked' : '') + '" onclick="event.stopPropagation();toggleTask(\'' + t.id + '\')">' +
                 (t.completed ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>' : '') +
             '</div>' +
             '<span class="priority-dot ' + t.priority + '"></span>' +
-            '<div class="task-card-title">' + escapeHtml(t.title) + '</div>' +
+            '<div class="task-card-title" onclick="openTaskModal(getTaskById(\'' + t.id + '\'))">' + escapeHtml(t.title) + '</div>' +
         '</div>' +
         '<div class="task-card-meta">' +
             '<span class="project-tag" style="background:' + pColor + '15;color:' + pColor + ';">' + pIcon + ' ' + escapeHtml(pName) + '</span>' +
@@ -924,6 +875,7 @@ function renderTaskItem(t) {
         '<div class="task-card-right">' +
             (t.assignedTo ? '<span style="font-size:0.65rem;color:var(--text-secondary);background:var(--bg-card);padding:2px 6px;border-radius:8px;border:1px solid var(--border);">' + escapeHtml(shortName) + '</span>' : '') +
             '<span class="status-badge ' + t.status + '">' + getStatusLabel(t.status) + '</span>' +
+            '<button class="edit-btn" onclick="event.stopPropagation();editTask(\'' + t.id + '\')" title="Modifier">✎</button>' +
             '<button class="delete-btn" onclick="event.stopPropagation();deleteTaskConfirm(\'' + t.id + '\')" title="Supprimer">✕</button>' +
         '</div>' +
     '</div>' +
@@ -951,7 +903,7 @@ window.editProject = function(id) {
 
 window.editTask = function(id) {
     var t = getTaskById(id);
-    if (t) openTaskDetail(id);
+    if (t) openTaskModal(t);
 };
 
 deleteProjectConfirm = function(id) {
@@ -1006,7 +958,7 @@ window.removeDetailTag = function(taskId, tagIndex) {
     if (!task || !task.tags) return;
     task.tags.splice(tagIndex, 1);
     saveData();
-    openTaskDetail(taskId);
+    openTaskModal(getTaskById(taskId));
     renderAll();
 };
 
