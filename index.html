@@ -3259,9 +3259,6 @@ font-size: 0.75rem;
             <button id="searchToggle" class="btn-icon" title="Rechercher">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </button>
-            <button class="nav-btn" id="driveConnectBtn" title="Google Drive Sync" onclick="showDriveModal()">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            </button>
             <button id="themeToggle" class="btn-icon" title="Mode sombre">
                 <svg id="sunIcon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                 <svg id="moonIcon" class="hidden" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
@@ -3751,47 +3748,6 @@ font-size: 0.75rem;
         </div>
     </div>
 
-    <!-- ═══ Modal: Drive Sync ═══ -->
-    <div id="driveModal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content drive-modal">
-            <div class="modal-header">
-                <h3>Synchronisation Google Drive</h3>
-                <button class="modal-close" id="closeDriveModal" data-close>&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="driveClientId">Client ID (Google Cloud Console)</label>
-                    <input type="text" id="driveClientId" placeholder="xxxxx.apps.googleusercontent.com" />
-                </div>
-                <div class="form-group">
-                    <label for="driveApiKey">API Key</label>
-                    <input type="text" id="driveApiKey" placeholder="AIza..." />
-                </div>
-
-                <div id="driveStatus" class="drive-status">
-                    <div class="drive-status-icon" id="driveStatusIcon">🔴</div>
-                    <div class="drive-status-text" id="driveStatusText">Non connecté</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="driveAutoSave">Auto-save</label>
-                    <select id="driveAutoSave">
-                        <option value="0">Désactivé</option>
-                        <option value="1">1 minute</option>
-                        <option value="5" selected>5 minutes</option>
-                        <option value="15">15 minutes</option>
-                    </select>
-                </div>
-
-                <div class="drive-actions">
-                    <button class="btn btn-primary" id="connectDriveBtn">Connecter</button>
-                    <button class="btn btn-secondary" id="syncDriveBtn" disabled>🔄 Synchroniser maintenant</button>
-                    <button class="btn btn-danger" id="disconnectDriveBtn" disabled>Déconnecter</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- ═══ Toast Container ═══ -->
     <div id="toastContainer" class="toast-container"></div>
@@ -3799,16 +3755,16 @@ font-size: 0.75rem;
     <script>
 /* ═══════════════════════════════════════════════════
    GestionProjet — Application JavaScript
-   Vanilla JS, Google Apps Script Backend, Zéro dépendance
+   Vanilla JS, localStorage, Zéro dépendance
    ═══════════════════════════════════════════════════ */
 
 // ─── Configuration ──────────────────────────────────
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz9D3ju9KTwaZLBmj5TbRJ0XsKSG8h9dQUyx_yGbbY0_pvh0-5FiM0T70KfQEZe0nFFfw/exec';
 const STORAGE_KEY = 'projectflow_data';
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz9D3ju9KTwaZLBmj5TbRJ0XsKSG8h9dQUyx_yGbbY0_pvh0-5FiM0T70KfQEZe0nFFfw/exec';
 const USE_GAS = true;
+const APP_VERSION = '1.0';
 
 // ─── Data Layer (DB Module) ─────────────────────────
-// Abstraction pour accès aux données — swappable pour migration future (PostgreSQL, Firebase, etc.)
 const DB = {
     _baseUrl: GAS_WEB_APP_URL,
     _useGas: USE_GAS,
@@ -3828,7 +3784,6 @@ const DB = {
             if (data && data.projects && data.tasks) return data;
             return null;
         } catch (e) {
-            console.error('DB.read GAS error, fallback localStorage:', e);
             try {
                 const stored = localStorage.getItem(STORAGE_KEY);
                 if (stored) return JSON.parse(stored);
@@ -3848,12 +3803,10 @@ const DB = {
             });
             return resp.ok;
         } catch (e) {
-            console.error('DB.write GAS error:', e);
             return false;
         }
     }
 };
-const APP_VERSION = '1.0';
 
 // Données pré-remplies au premier lancement
 const SEED_DATA = {
@@ -3950,7 +3903,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 /**
- * Initialise les données depuis Google Apps Script (ou localStorage fallback).
+ * Initialise les données depuis localStorage.
  * Charge les données seed si c'est le premier lancement.
  */
 async function initData() {
@@ -3960,37 +3913,24 @@ async function initData() {
             appData = serverData;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
         } else if (!localStorage.getItem(STORAGE_KEY)) {
-            // Premier lancement : données pré-remplies puis sync serveur
             appData = JSON.parse(JSON.stringify(SEED_DATA));
             await DB.write(appData);
         } else {
-            // Serveur vide mais données locales existantes
             appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
         }
     } catch (e) {
-        console.error('Erreur initData:', e);
-        try {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                appData = JSON.parse(stored);
-            } else {
-                appData = JSON.parse(JSON.stringify(SEED_DATA));
-            }
-        } catch (_) {
-            appData = JSON.parse(JSON.stringify(SEED_DATA));
-        }
+        console.error('Erreur localStorage:', e);
+        appData = JSON.parse(JSON.stringify(SEED_DATA));
     }
 }
 
 /**
- * Sauvegarde les données via le module DB (GAS + localStorage fallback).
+ * Sauvegarde les données dans localStorage.
  */
 async function saveData() {
     try {
         await DB.write(appData);
-        scheduleDriveUpload();
     } catch (e) {
-        console.error('Erreur sauvegarde:', e);
         showToast('Erreur de sauvegarde', 'error');
     }
 }
@@ -6409,410 +6349,6 @@ function initMobileNav() {
     }
 }
 
-// ═══ Google Drive Sync Module ═══
-class GestionProjetDrive {
-  constructor() {
-    this.CLIENT_ID = '';
-    this.API_KEY = '';
-    this.DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
-    this.SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata';
-    this.fileName = 'db_gestionprojet.json';
-    this.fileId = null;
-    this.isConnected = false;
-    this.lastSyncTime = null;
-    this.autoSaveInterval = null;
-    this.autoSaveDelay = 5 * 60 * 1000;
-  }
-
-  async init() {
-    const creds = JSON.parse(localStorage.getItem('projectflow_drive_creds') || '{}');
-    this.CLIENT_ID = creds.clientId || '';
-    this.API_KEY = creds.apiKey || '';
-    if (this.CLIENT_ID && this.API_KEY) {
-      await this.loadGapi();
-      return true;
-    }
-    return false;
-  }
-
-  async loadGapi() {
-    return new Promise((resolve, reject) => {
-      if (window.gapi && window.gapi.client && window.gapi.client.drive) {
-        this.isConnected = true;
-        resolve();
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://apis.google.com/js/api.js';
-      script.onload = async () => {
-        await gapi.load('client', async () => {
-          try {
-            await gapi.client.init({
-              apiKey: this.API_KEY,
-              discoveryDocs: [this.DISCOVERY_DOC],
-            });
-            const tokenScript = document.createElement('script');
-            tokenScript.src = 'https://accounts.google.com/gsi/client';
-            tokenScript.onload = () => {
-              this.isConnected = true;
-              resolve();
-            };
-            tokenScript.onerror = () => {
-              // GIS load failed but GAPI is loaded - still resolve
-              this.isConnected = true;
-              resolve();
-            };
-            document.head.appendChild(tokenScript);
-          } catch (e) {
-            console.error('GAPI init failed', e);
-            reject(e);
-          }
-        });
-      };
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  }
-
-  async authenticate() {
-    return new Promise((resolve) => {
-      try {
-        const tokenClient = google.accounts.oauth2.initTokenClient({
-          client_id: this.CLIENT_ID,
-          scope: this.SCOPES,
-          callback: async (response) => {
-            if (response.error) {
-              resolve(false);
-              return;
-            }
-            const token = gapi.client.getToken();
-            localStorage.setItem('projectflow_drive_token', JSON.stringify({
-              access_token: token.access_token,
-              expires_at: Date.now() + (token.expires_in || 3600) * 1000
-            }));
-            const creds = JSON.parse(localStorage.getItem('projectflow_drive_creds') || '{}');
-            creds.clientId = this.CLIENT_ID;
-            creds.apiKey = this.API_KEY;
-            localStorage.setItem('projectflow_drive_creds', JSON.stringify(creds));
-            this.isConnected = true;
-            await this.uploadData();
-            resolve(true);
-          },
-        });
-        tokenClient.requestAccessToken({ prompt: 'consent' });
-      } catch (e) {
-        console.error('Auth error', e);
-        resolve(false);
-      }
-    });
-  }
-
-  async saveToken(token) {
-    gapi.client.setToken({ access_token: token });
-  }
-
-  async revokeToken() {
-    const token = gapi.client.getToken();
-    if (token) {
-      try {
-        await fetch(`https://oauth2.googleapis.com/revoke?token=${encodeURIComponent(token.access_token)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-      } catch (e) {
-        console.warn('Token revoke failed', e);
-      }
-      gapi.client.setToken(null);
-      localStorage.removeItem('projectflow_drive_token');
-      localStorage.setItem('projectflow_drive_creds', JSON.stringify({ clientId: this.CLIENT_ID, apiKey: this.API_KEY }));
-      this.isConnected = false;
-    }
-  }
-
-  async findOrCreateFile() {
-    try {
-      const response = await gapi.client.drive.files.list({
-        q: `name='${this.fileName}' and trashed=false`,
-        spaces: 'drive',
-        fields: 'files(id, name, modifiedTime)',
-      });
-      const files = response.result.files || [];
-      if (files.length > 0) {
-        this.fileId = files[0].id;
-        return files[0].id;
-      }
-      const createResp = await gapi.client.drive.files.create({
-        resource: { name: this.fileName, mimeType: 'application/json' },
-        fields: 'id',
-      });
-      this.fileId = createResp.result.id;
-      return this.fileId;
-    } catch (e) {
-      console.error('Drive file search/create failed', e);
-      return null;
-    }
-  }
-
-  async uploadData() {
-    if (!this.isConnected) return false;
-    if (!this.fileId) await this.findOrCreateFile();
-    if (!this.fileId) return false;
-    const data = localStorage.getItem('projectflow_data') || '{}';
-    try {
-      await gapi.client.drive.files.update({
-        fileId: this.fileId,
-        resource: { mimeType: 'application/json' },
-        media: {
-          mimeType: 'application/json',
-          body: data,
-        },
-        fields: 'id',
-      });
-      this.lastSyncTime = new Date();
-      updateSyncIndicator('synced');
-      return true;
-    } catch (e) {
-      console.error('Upload failed', e);
-      updateSyncIndicator('error');
-      return false;
-    }
-  }
-
-  async downloadData() {
-    if (!this.isConnected) return false;
-    if (!this.fileId) await this.findOrCreateFile();
-    if (!this.fileId) return false;
-    try {
-      const response = await gapi.client.drive.files.get({
-        fileId: this.fileId,
-        alt: 'media',
-      });
-      if (response.body) {
-        const data = JSON.parse(response.body);
-        if (data && (data.projects || data.tasks || data.trash)) {
-          const merged = mergeData(data);
-          localStorage.setItem('projectflow_data', JSON.stringify(merged));
-          updateSyncIndicator('synced');
-          return true;
-        }
-      }
-      return false;
-    } catch (e) {
-      console.error('Download failed', e);
-      updateSyncIndicator('error');
-      return false;
-    }
-  }
-
-  startAutoSave() {
-    this.stopAutoSave();
-    this.autoSaveInterval = setInterval(() => this.uploadData(), this.autoSaveDelay);
-  }
-
-  stopAutoSave() {
-    if (this.autoSaveInterval) {
-      clearInterval(this.autoSaveInterval);
-      this.autoSaveInterval = null;
-    }
-  }
-
-  setAutoSaveInterval(minutes) {
-    this.autoSaveDelay = minutes * 60 * 1000;
-    const creds = JSON.parse(localStorage.getItem('projectflow_drive_creds') || '{}');
-    creds.autoSaveMinutes = minutes;
-    localStorage.setItem('projectflow_drive_creds', JSON.stringify(creds));
-    if (this.isConnected && minutes > 0) this.startAutoSave();
-  }
-}
-
-let driveSync = new GestionProjetDrive();
-
-// ─── Drive Sync Integration ──────────────────────
-
-async function initDriveSync() {
-  try {
-    const initialized = await driveSync.init();
-    if (initialized && hasStoredToken()) {
-      await driveSync.downloadData();
-      driveSync.startAutoSave();
-      if (typeof renderAll === 'function') renderAll();
-    }
-  } catch (e) {
-    console.warn('Drive init failed:', e);
-  }
-}
-
-function hasStoredToken() {
-  const token = localStorage.getItem('projectflow_drive_token');
-  if (!token) return false;
-  try {
-    const tokenData = JSON.parse(token);
-    return tokenData.expires_at > Date.now();
-  } catch(e) { return false; }
-}
-
-function updateSyncIndicator(status) {
-  const iconEl = document.getElementById('driveStatusIcon');
-  const textEl = document.getElementById('driveStatusText');
-  const btnEl = document.getElementById('connectDriveBtn');
-  const syncBtn = document.getElementById('syncDriveBtn');
-  const disconnectBtn = document.getElementById('disconnectDriveBtn');
-
-  if (!iconEl) return;
-
-  switch(status) {
-    case 'syncing':
-      iconEl.textContent = '🟡';
-      textEl.textContent = 'Synchronisation...';
-      break;
-    case 'synced':
-      iconEl.textContent = '🟢';
-      textEl.textContent = 'Synchronisé ' + (driveSync.lastSyncTime ? driveSync.lastSyncTime.toLocaleTimeString('fr-FR') : '');
-      if (btnEl) { btnEl.textContent = 'Connecter'; btnEl.disabled = true; }
-      if (syncBtn) syncBtn.disabled = false;
-      if (disconnectBtn) disconnectBtn.disabled = false;
-      break;
-    case 'error':
-      iconEl.textContent = '🔴';
-      textEl.textContent = 'Erreur de synchronisation';
-      break;
-    default:
-      iconEl.textContent = '🔴';
-      textEl.textContent = 'Non connecté';
-      if (btnEl) { btnEl.disabled = false; }
-      if (syncBtn) syncBtn.disabled = true;
-      if (disconnectBtn) disconnectBtn.disabled = true;
-  }
-}
-
-function showDriveModal() {
-  const modal = document.getElementById('driveModal');
-  if (!modal) return;
-  modal.classList.remove('hidden');
-
-  const creds = JSON.parse(localStorage.getItem('projectflow_drive_creds') || '{}');
-  document.getElementById('driveClientId').value = creds.clientId || '';
-  document.getElementById('driveApiKey').value = creds.apiKey || '';
-
-  const minutes = creds.autoSaveMinutes !== undefined ? creds.autoSaveMinutes : 5;
-  document.getElementById('driveAutoSave').value = String(minutes);
-
-  updateSyncIndicator(driveSync.isConnected ? 'synced' : 'disconnected');
-}
-
-function connectDrive() {
-  const clientId = document.getElementById('driveClientId').value.trim();
-  const apiKey = document.getElementById('driveApiKey').value.trim();
-
-  if (!clientId || !apiKey) {
-    showToast('Veuillez fournir le Client ID et l\'API Key Google Drive', 'error');
-    return;
-  }
-
-  driveSync.CLIENT_ID = clientId;
-  driveSync.API_KEY = apiKey;
-  updateSyncIndicator('syncing');
-
-  driveSync.authenticate().then(success => {
-    if (success) {
-      showToast('Connecté à Google Drive !', 'success');
-      if (typeof renderAll === 'function') renderAll();
-    } else {
-      showToast('Échec de connexion. Vérifiez vos identifiants.', 'error');
-      updateSyncIndicator('error');
-    }
-  });
-}
-
-async function syncDriveNow() {
-  if (!driveSync.isConnected) return;
-  updateSyncIndicator('syncing');
-  const success = await driveSync.uploadData();
-  if (success) {
-    showToast('Données synchronisées !', 'success');
-    updateSyncIndicator('synced');
-  } else {
-    showToast('Échec de synchronisation', 'error');
-    updateSyncIndicator('error');
-  }
-}
-
-function disconnectDrive() {
-  driveSync.revokeToken();
-  driveSync.stopAutoSave();
-  updateSyncIndicator('disconnected');
-  showToast('Déconnecté de Google Drive', 'info');
-}
-
-function mergeData(cloudData) {
-  const localData = JSON.parse(localStorage.getItem('projectflow_data') || '{}');
-  const cloudProjects = (cloudData.projects || []).length;
-  const localProjects = (localData.projects || []).length;
-  const cloudTasks = (cloudData.tasks || []).length;
-  const localTasks = (localData.tasks || []).length;
-
-  if (cloudProjects > 0 && (cloudProjects > localProjects || !localProjects)) {
-    return cloudData;
-  }
-  if (cloudTasks > localTasks && cloudProjects >= localProjects) {
-    return cloudData;
-  }
-  return localData;
-}
-
-let _syncTimeout = null;
-function scheduleDriveUpload() {
-  if (!driveSync || !driveSync.isConnected) return;
-  if (_syncTimeout) clearTimeout(_syncTimeout);
-  _syncTimeout = setTimeout(() => {
-    if (driveSync.isConnected) {
-      updateSyncIndicator('syncing');
-      driveSync.uploadData().then(success => {
-        updateSyncIndicator(success ? 'synced' : 'error');
-      });
-    }
-  }, 2000);
-}
-
-// ─── Drive Sync Event Listeners ──────────────────────
-function initDriveEventListeners() {
-  document.getElementById('connectDriveBtn')?.addEventListener('click', connectDrive);
-  document.getElementById('syncDriveBtn')?.addEventListener('click', syncDriveNow);
-  document.getElementById('disconnectDriveBtn')?.addEventListener('click', disconnectDrive);
-
-  document.getElementById('driveAutoSave')?.addEventListener('change', function(e) {
-    const val = parseInt(e.target.value);
-    driveSync.setAutoSaveInterval(val);
-    if (val === 0) {
-      driveSync.stopAutoSave();
-    }
-  });
-
-  // Restore auto-save setting
-  const savedCreds = JSON.parse(localStorage.getItem('projectflow_drive_creds') || '{}');
-  if (savedCreds.autoSaveMinutes) {
-    const el = document.getElementById('driveAutoSave');
-    if (el) el.value = String(savedCreds.autoSaveMinutes);
-  }
-
-  // Close modal on Escape
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      const modal = document.getElementById('driveModal');
-      if (modal && !modal.classList.contains('hidden')) {
-        modal.classList.add('hidden');
-      }
-    }
-  });
-}
-
-// Appeler initNewFeatures au démarrage
-document.addEventListener('DOMContentLoaded', function() {
-    initNewFeatures();
-    initMobileNav();
-    initDriveEventListeners();
-    initDriveSync();
-});
 
     </script>
 </body>
