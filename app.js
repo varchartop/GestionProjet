@@ -26,7 +26,7 @@ const DB = {
             const resp = await fetch(this._baseUrl + '?action=get&_=' + Date.now());
             if (!resp.ok) throw new Error('Network error ' + resp.status);
             const data = await resp.json();
-            if (data && data.projects && data.tasks) return data;
+            if (data && (data.projects || data.tasks)) return data;
             return null;
         } catch (e) {
             try {
@@ -156,13 +156,23 @@ async function initData() {
     try {
         const serverData = await DB.read();
         if (serverData && serverData.projects && serverData.projects.length > 0) {
-            appData = serverData;
+            appData = {
+                projects: serverData.projects,
+                tasks: serverData.tasks || []
+            };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
         } else if (!localStorage.getItem(STORAGE_KEY)) {
             appData = JSON.parse(JSON.stringify(SEED_DATA));
             await DB.write(appData);
         } else {
-            appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            const local = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            // Si localStorage est vide (projets et tâches vides), charger SEED_DATA
+            if (!local.projects || local.projects.length === 0) {
+                appData = JSON.parse(JSON.stringify(SEED_DATA));
+                await DB.write(appData);
+            } else {
+                appData = local;
+            }
         }
     } catch (e) {
         console.error('Erreur localStorage:', e);
