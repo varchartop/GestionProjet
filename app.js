@@ -702,6 +702,7 @@ function renderAll() {
     renderDashboard();
     renderProjects();
     populateFilterProjects();
+    populateFilterTags();
     renderTasks();
 }
 
@@ -792,9 +793,12 @@ function renderTasks() {
     var filterStatus = document.getElementById('filterTaskStatus').value;
     var filterPriority = document.getElementById('filterTaskPriority').value;
 
+    var filterTag = document.getElementById('filterTaskTag').value;
+
     var tasks = getActiveTasks();
     if (filterProject) tasks = tasks.filter(function(t) { return t.projectId === filterProject; });
     if (filterPriority) tasks = tasks.filter(function(t) { return t.priority === filterPriority; });
+    if (filterTag) tasks = tasks.filter(function(t) { return t.tags && t.tags.indexOf(filterTag) !== -1; });
 
     // Sort: incomplete first, then deadline, then priority
     var pOrder = { haute: 0, moyenne: 1, basse: 2 };
@@ -894,7 +898,6 @@ function initKanbanDrag() {
 
 function renderTaskItem(t) {
     var project = getProjectById(t.projectId);
-    var pIcon = '📁';
     var pColor = project ? project.color : '#6366f1';
     var pName = project ? project.name : 'Projet supprimé';
     var nameParts = t.assignedTo ? t.assignedTo.trim().split(' ') : [];
@@ -905,26 +908,43 @@ function renderTaskItem(t) {
         var dd = new Date(t.deadline);
         var now = new Date();
         var diff = Math.ceil((dd - now) / 86400000);
-        if (diff < 0) deadlineStr = '<span class="deadline-overdue">En retard (' + Math.abs(diff) + 'j)</span>';
-        else if (diff === 0) deadlineStr = '<span class="deadline-today">Aujourd\'hui</span>';
-        else if (diff <= 3) deadlineStr = '<span class="deadline-soon">' + diff + 'j</span>';
-        else deadlineStr = formatDate(t.deadline);
+        if (diff < 0) deadlineStr = '<span class="deadline-overdue">⚠ En retard (' + Math.abs(diff) + 'j)</span>';
+        else if (diff === 0) deadlineStr = '<span class="deadline-today">📅 Aujourd\'hui</span>';
+        else if (diff <= 3) deadlineStr = '<span class="deadline-soon">📅 ' + diff + 'j</span>';
+        else deadlineStr = '📅 ' + formatDate(t.deadline);
     }
+
+    var tagsHtml = (t.tags || []).map(function(tag) {
+        return '<span class="tag-mini">' + escapeHtml(tag) + '</span>';
+    }).join('');
+
+    var attachCount = (t.attachments || []).length;
+    var subCount = (t.subtasks || []).length;
+    var subDone = subCount > 0 ? t.subtasks.filter(function(s){return s.completed;}).length : 0;
 
     return '<div class="task-item priority-' + t.priority + '" draggable="true" data-task-id="' + t.id + '" ondragstart="event.dataTransfer.setData(\'text/plain\', \'' + t.id + '\')">' +
         '<span class="priority-dot ' + t.priority + '"></span>' +
-        '<div class="task-item-content">' +
-            '<div class="task-item-title" onclick="openTaskModal(getTaskById(\'' + t.id + '\'))">' + escapeHtml(t.title) + '</div>' +
-            '<div class="task-item-meta">' +
-                '<span class="project-tag" style="background:' + pColor + '15;color:' + pColor + ';">' + escapeHtml(pName) + '</span>' +
-                (deadlineStr ? ' ' + deadlineStr : '') +
+        '<div class="task-item-body">' +
+            '<div class="task-item-header">' +
+                '<div class="task-item-title" onclick="openTaskModal(getTaskById(\'' + t.id + '\'))">' + escapeHtml(t.title) + '</div>' +
+                '<div class="task-item-badges">' +
+                    (t.completed ? '<span class="badge-done">✓ Terminé</span>' : '<span class="badge-status ' + t.status + '">' + getStatusLabel(t.status) + '</span>') +
+                '</div>' +
             '</div>' +
+            '<div class="task-item-info">' +
+                '<span class="task-info-project" style="background:' + pColor + '15;color:' + pColor + ';">📁 ' + escapeHtml(pName) + '</span>' +
+                (deadlineStr ? ' ' + deadlineStr : '') +
+                (t.assignedTo ? ' <span class="task-info-assigned">👤 ' + escapeHtml(shortName) + '</span>' : '') +
+            '</div>' +
+            (tagsHtml || attachCount || subCount ? '<div class="task-item-extras">' +
+                tagsHtml +
+                (attachCount ? '<span class="task-info-attach">📎 ' + attachCount + '</span>' : '') +
+                (subCount ? '<span class="task-info-sub">☑ ' + subDone + '/' + subCount + '</span>' : '') +
+            '</div>' : '') +
         '</div>' +
         '<div class="task-item-actions">' +
-            (t.assignedTo ? '<span class="task-assigned">' + escapeHtml(shortName) + '</span>' : '') +
-            '<button class="task-drag-handle" title="Déplacer">⋮⋮</button>' +
-            '<button class="edit-btn" onclick="editTask(\'' + t.id + '\')" title="Modifier">✎</button>' +
-            '<button class="delete-btn" onclick="deleteTaskConfirm(\'' + t.id + '\')" title="Supprimer">✕</button>' +
+            '<button class="task-btn-edit" onclick="editTask(\'' + t.id + '\')" title="Modifier">✎ Modifier</button>' +
+            '<button class="task-btn-delete" onclick="deleteTaskConfirm(\'' + t.id + '\')" title="Supprimer">🗑 Supprimer</button>' +
         '</div>' +
     '</div>';
 }
@@ -1093,6 +1113,25 @@ function populateFilterProjects() {
         opt.value = p.id;
         opt.textContent = p.name;
         if (p.id === val) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+function populateFilterTags() {
+    var sel = document.getElementById('filterTaskTag');
+    if (!sel) return;
+    var val = sel.value;
+    var tags = {};
+    getActiveTasks().forEach(function(t) {
+        (t.tags || []).forEach(function(tag) { tags[tag] = true; });
+    });
+    var sortedTags = Object.keys(tags).sort();
+    sel.innerHTML = '<option value="">Toutes les étiquettes</option>';
+    sortedTags.forEach(function(tag) {
+        var opt = document.createElement('option');
+        opt.value = tag;
+        opt.textContent = tag;
+        if (tag === val) opt.selected = true;
         sel.appendChild(opt);
     });
 }
