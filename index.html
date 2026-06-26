@@ -3799,11 +3799,60 @@ font-size: 0.75rem;
     <script>
 /* ═══════════════════════════════════════════════════
    GestionProjet — Application JavaScript
-   Vanilla JS, localStorage, Zéro dépendance
+   Vanilla JS, Google Apps Script Backend, Zéro dépendance
    ═══════════════════════════════════════════════════ */
 
 // ─── Configuration ──────────────────────────────────
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz9D3ju9KTwaZLBmj5TbRJ0XsKSG8h9dQUyx_yGbbY0_pvh0-5FiM0T70KfQEZe0nFFfw/exec';
 const STORAGE_KEY = 'projectflow_data';
+const USE_GAS = true;
+
+// ─── Data Layer (DB Module) ─────────────────────────
+// Abstraction pour accès aux données — swappable pour migration future (PostgreSQL, Firebase, etc.)
+const DB = {
+    _baseUrl: GAS_WEB_APP_URL,
+    _useGas: USE_GAS,
+
+    async read() {
+        if (!this._useGas) {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) return JSON.parse(stored);
+                return null;
+            } catch (e) { return null; }
+        }
+        try {
+            const resp = await fetch(this._baseUrl + '?action=get&_=' + Date.now());
+            if (!resp.ok) throw new Error('Network error ' + resp.status);
+            const data = await resp.json();
+            if (data && data.projects && data.tasks) return data;
+            return null;
+        } catch (e) {
+            console.error('DB.read GAS error, fallback localStorage:', e);
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) return JSON.parse(stored);
+            } catch (_) {}
+            return null;
+        }
+    },
+
+    async write(data) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (_) {}
+        if (!this._useGas) return true;
+        try {
+            const resp = await fetch(this._baseUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'save', data: data })
+            });
+            return resp.ok;
+        } catch (e) {
+            console.error('DB.write GAS error:', e);
+            return false;
+        }
+    }
+};
 const APP_VERSION = '1.0';
 
 // Données pré-remplies au premier lancement
@@ -3887,8 +3936,8 @@ let confirmCallback = null;
 let currentAttachments = []; // Temporaire pour le modal d'édition de tâche
 
 // ─── Initialisation ─────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-    initData();
+document.addEventListener('DOMContentLoaded', async function() {
+    await initData();
     initNavigation();
     initTheme();
     initModals();
@@ -3901,31 +3950,44 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Initialise les données depuis localStorage.
+ * Initialise les données depuis Google Apps Script (ou localStorage fallback).
  * Charge les données seed si c'est le premier lancement.
  */
-function initData() {
+async function initData() {
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            appData = JSON.parse(stored);
-        } else {
-            // Premier lancement : données pré-remplies
+        const serverData = await DB.read();
+        if (serverData && serverData.projects && serverData.projects.length > 0) {
+            appData = serverData;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        } else if (!localStorage.getItem(STORAGE_KEY)) {
+            // Premier lancement : données pré-remplies puis sync serveur
             appData = JSON.parse(JSON.stringify(SEED_DATA));
-            saveData();
+            await DB.write(appData);
+        } else {
+            // Serveur vide mais données locales existantes
+            appData = JSON.parse(localStorage.getItem(STORAGE_KEY));
         }
     } catch (e) {
-        console.error('Erreur localStorage:', e);
-        appData = JSON.parse(JSON.stringify(SEED_DATA));
+        console.error('Erreur initData:', e);
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                appData = JSON.parse(stored);
+            } else {
+                appData = JSON.parse(JSON.stringify(SEED_DATA));
+            }
+        } catch (_) {
+            appData = JSON.parse(JSON.stringify(SEED_DATA));
+        }
     }
 }
 
 /**
- * Sauvegarde les données dans localStorage.
+ * Sauvegarde les données via le module DB (GAS + localStorage fallback).
  */
-function saveData() {
+async function saveData() {
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        await DB.write(appData);
         scheduleDriveUpload();
     } catch (e) {
         console.error('Erreur sauvegarde:', e);
