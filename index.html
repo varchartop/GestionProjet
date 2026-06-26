@@ -4073,15 +4073,39 @@ function initNavigation() {
 function switchTab(tabName) {
     currentTab = tabName;
     
-    // Update nav
+    // Close any open modal
+    document.querySelectorAll('.modal:not(.hidden)').forEach(function(m) {
+        m.classList.add('hidden');
+    });
+    
+    // Reset body overflow (in case mobile menu was open)
+    document.body.style.overflow = '';
+    
+    // Update desktop nav tabs
     document.querySelectorAll('.nav-tab').forEach(function(t) {
         t.classList.toggle('active', t.dataset.tab === tabName);
     });
+    
+    // Update mobile nav items
+    document.querySelectorAll('.mobile-nav-item').forEach(function(t) {
+        t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+    });
+    
+    // Close mobile menu if open
+    var mobileMenu = document.getElementById('mobileNavMenu');
+    var mobileOverlay = document.getElementById('mobileNavOverlay');
+    var hamburger = document.getElementById('navHamburger');
+    if (mobileMenu) mobileMenu.classList.remove('open');
+    if (mobileOverlay) mobileOverlay.classList.remove('open');
+    if (hamburger) hamburger.classList.remove('active');
     
     // Update content
     document.querySelectorAll('.tab-content').forEach(function(s) {
         s.classList.toggle('active', s.id === tabName);
     });
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'instant' });
     
     renderAll();
 }
@@ -4500,6 +4524,12 @@ function renderAll() {
     renderTasks();
     if (currentTab === 'timeline') {
         renderGantt();
+    }
+    if (currentTab === 'calendar') {
+        renderCalendar();
+    }
+    if (currentTab === 'corbeille') {
+        renderCorbeille();
     }
 }
 
