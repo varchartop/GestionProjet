@@ -646,15 +646,9 @@ function renderAll() {
     renderDashboard();
     renderProjects();
     renderTasks();
-    if (currentTab === 'timeline') {
-        renderGantt();
-    }
-    if (currentTab === 'calendar') {
-        renderCalendar();
-    }
-    if (currentTab === 'corbeille') {
-        renderCorbeille();
-    }
+    renderGantt();
+    renderCalendar();
+    renderCorbeille();
 }
 
 // ─── Dashboard ──────────────────────────────────────
