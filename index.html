@@ -364,74 +364,7 @@
         </div>
     </div>
 
-    <!-- ═══ Modal: Task Detail ═══ -->
-    <div id="taskDetailModal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="taskDetailTitle">Détail de la tâche</h3>
-                <button class="modal-close" data-close>&times;</button>
-            </div>
-            <form id="taskDetailForm">
-                <input type="hidden" id="taskDetailId">
-                <div class="task-detail-section">
-                    <div class="task-detail-label">Projet</div>
-                    <div class="task-detail-value" id="taskDetailProject"></div>
-                </div>
-                <div class="task-detail-section">
-                    <div class="task-detail-label">Statut</div>
-                    <select id="taskDetailStatus" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text-primary);">
-                        <option value="todo">À faire</option>
-                        <option value="in_progress">En cours</option>
-                        <option value="done">Terminé</option>
-                    </select>
-                </div>
-                <div class="task-detail-section">
-                    <div class="task-detail-label">Priorité</div>
-                    <select id="taskDetailPriority" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text-primary);">
-                        <option value="basse">Basse</option>
-                        <option value="moyenne">Moyenne</option>
-                        <option value="haute">Haute</option>
-                    </select>
-                </div>
-                <div class="task-detail-section">
-                    <div class="task-detail-label">Assigné à</div>
-                    <input type="text" id="taskDetailAssignedTo" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text-primary);" placeholder="Nom de la personne">
-                </div>
-                <div class="task-detail-section">
-                    <div class="task-detail-label">Date limite</div>
-                    <input type="date" id="taskDetailDeadline" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text-primary);">
-                </div>
-                <div class="task-detail-section">
-                    <div class="task-detail-label">Étiquettes</div>
-                    <div id="taskDetailTags" class="tag-input-container">
-                        <input type="text" class="tag-input" id="taskDetailTagInput" placeholder="Ajouter une étiquette...">
-                    </div>
-                    <div class="tag-suggestions" id="taskDetailTagSuggestions"></div>
-                </div>
-                <div class="task-detail-section">
-                    <div class="subtasks-section">
-                        <div class="subtasks-header">
-                            <span class="subtasks-title">Sous-tâches</span>
-                            <span class="subtask-progress-text" id="subtaskProgressText">0/0</span>
-                        </div>
-                        <div class="subtask-progress">
-                            <div class="subtask-progress-bar">
-                                <div class="subtask-progress-fill" id="subtaskProgressBar" style="width:0%"></div>
-                            </div>
-                        </div>
-                        <div id="subtasksList"></div>
-                        <input type="text" class="subtask-add-input" id="subtaskAddInput" placeholder="+ Ajouter une sous-tâche (Entrée)">
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-sm btn-danger" id="taskDetailDeleteBtn" style="margin-right:auto;">Supprimer</button>
-                    <button type="button" class="btn btn-secondary" data-close>Annuler</button>
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
-                </div>
-            </form>
-        </div>
-    </div>
+
 
     <!-- ═══ Toast Container ═══ -->
     <div id="toastContainer" class="toast-container"></div>
