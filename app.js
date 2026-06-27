@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     initForms();
     initDataActions();
     initSearch();
+    initCalendarNav();
     purgeOldDeletedItems();
     renderAll();
 });
@@ -515,6 +516,28 @@ function csvEscape(value) {
 }
 
 // ─── 12. SEARCH ──────────────────────────────────────
+function initCalendarNav() {
+    var prev = document.getElementById('calPrev');
+    var next = document.getElementById('calNext');
+    var today = document.getElementById('calToday');
+    if (prev) prev.addEventListener('click', function() {
+        calMonth--;
+        if (calMonth < 0) { calMonth = 11; calYear--; }
+        renderCalendar();
+    });
+    if (next) next.addEventListener('click', function() {
+        calMonth++;
+        if (calMonth > 11) { calMonth = 0; calYear++; }
+        renderCalendar();
+    });
+    if (today) today.addEventListener('click', function() {
+        var now = new Date();
+        calMonth = now.getMonth();
+        calYear = now.getFullYear();
+        renderCalendar();
+    });
+}
+
 function initSearch() {
     var searchToggle = document.getElementById('searchToggle');
     var searchOverlay = document.getElementById('searchOverlay');
@@ -704,6 +727,7 @@ function renderAll() {
     populateFilterProjects();
     populateFilterTags();
     renderTasks();
+    renderCalendar();
 }
 
 // ─── 15a. DASHBOARD ──────────────────────────────────
@@ -1144,4 +1168,73 @@ function populateFilterTags() {
         if (tag === val) opt.selected = true;
         sel.appendChild(opt);
     });
+}
+
+/* ═══ Calendar ═══════════════════════════════════ */
+var calMonth, calYear;
+(function initCalDate() {
+    var now = new Date();
+    calMonth = now.getMonth();
+    calYear = now.getFullYear();
+})();
+
+var MONTH_NAMES = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+function renderCalendar() {
+    var label = document.getElementById('calMonthLabel');
+    var grid = document.getElementById('calendarGrid');
+    if (!grid) return;
+
+    if (label) label.textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+
+    // First day of month (0=Sun → adjust to Mon=0)
+    var firstDay = new Date(calYear, calMonth, 1).getDay();
+    var startOffset = (firstDay === 0 ? 6 : firstDay - 1); // Monday-based
+    var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
+    // Build task map: dateStr → [tasks]
+    var tasksByDate = {};
+    getActiveTasks().forEach(function(t) {
+        if (t.deadline) {
+            var ds = t.deadline.substring(0, 10);
+            if (!tasksByDate[ds]) tasksByDate[ds] = [];
+            tasksByDate[ds].push(t);
+        }
+    });
+
+    var html = '';
+    // Empty cells before first day
+    for (var i = 0; i < startOffset; i++) {
+        html += '<div class="cal-day empty"></div>';
+    }
+    // Day cells
+    for (var d = 1; d <= daysInMonth; d++) {
+        var dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+        var isToday = dateStr === todayStr;
+        var dayTasks = tasksByDate[dateStr] || [];
+
+        var classes = 'cal-day';
+        if (isToday) classes += ' today';
+
+        html += '<div class="' + classes + '">';
+        html += '<span class="cal-day-num' + (isToday ? ' today' : '') + '">' + d + '</span>';
+
+        dayTasks.slice(0, 3).forEach(function(t) {
+            var pColor = '#6366f1';
+            var proj = getProjectById(t.projectId);
+            if (proj) pColor = proj.color;
+            html += '<div class="cal-task priority-' + t.priority + '" onclick="openTaskModal(getTaskById(\'' + t.id + '\'))" style="border-left:3px solid ' + pColor + ';">' + escapeHtml(t.title) + '</div>';
+        });
+
+        if (dayTasks.length > 3) {
+            html += '<div class="cal-more">+' + (dayTasks.length - 3) + ' autres</div>';
+        }
+
+        html += '</div>';
+    }
+
+    grid.innerHTML = html;
 }
