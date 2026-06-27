@@ -6022,6 +6022,7 @@ renderTasks = function() {
     }
     
     // Sans filtres : Kanban ou liste selon le mode
+    kanbanColumns.classList.remove('hidden');
     container.innerHTML = '';
     var viewMode = getViewMode();
     
