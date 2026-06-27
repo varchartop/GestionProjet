@@ -922,6 +922,14 @@ function renderTaskItem(t) {
     var subCount = (t.subtasks || []).length;
     var subDone = subCount > 0 ? t.subtasks.filter(function(s){return s.completed;}).length : 0;
 
+    var descHtml = '';
+    if (t.description) {
+        var shortDesc = t.description.length > 80 ? t.description.substring(0, 80) + '…' : t.description;
+        descHtml = '<div class="task-item-desc">' + escapeHtml(shortDesc) + '</div>';
+    }
+
+    var createdStr = t.createdAt ? '<span class="task-info-created">Créé: ' + formatDate(t.createdAt) + '</span>' : '';
+
     return '<div class="task-item priority-' + t.priority + '" draggable="true" data-task-id="' + t.id + '" ondragstart="event.dataTransfer.setData(\'text/plain\', \'' + t.id + '\')">' +
         '<span class="priority-dot ' + t.priority + '"></span>' +
         '<div class="task-item-body">' +
@@ -931,10 +939,12 @@ function renderTaskItem(t) {
                     (t.completed ? '<span class="badge-done">✓ Terminé</span>' : '<span class="badge-status ' + t.status + '">' + getStatusLabel(t.status) + '</span>') +
                 '</div>' +
             '</div>' +
+            descHtml +
             '<div class="task-item-info">' +
                 '<span class="task-info-project" style="background:' + pColor + '15;color:' + pColor + ';">📁 ' + escapeHtml(pName) + '</span>' +
                 (deadlineStr ? ' ' + deadlineStr : '') +
                 (t.assignedTo ? ' <span class="task-info-assigned">👤 ' + escapeHtml(shortName) + '</span>' : '') +
+                createdStr +
             '</div>' +
             (tagsHtml || attachCount || subCount ? '<div class="task-item-extras">' +
                 tagsHtml +
