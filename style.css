@@ -789,43 +789,49 @@ body {
     margin-top: 2px;
 }
 
+/* ─── Action Buttons (unified) ────────────────────── */
 .task-btn-edit, .task-btn-delete {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 6px 14px;
-    border: 1px solid var(--border);
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
     border-radius: 8px;
-    font-size: 0.76rem;
+    font-size: 0.82rem;
     font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
     font-family: inherit;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
 }
 
 .task-btn-edit {
     background: rgba(99,102,241,0.1);
     color: #6366f1;
-    border-color: rgba(99,102,241,0.3);
+    border-color: rgba(99,102,241,0.25);
 }
 
 .task-btn-edit:hover {
     background: rgba(99,102,241,0.2);
+    border-color: rgba(99,102,241,0.4);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(99,102,241,0.15);
+    box-shadow: 0 3px 8px rgba(99,102,241,0.15);
 }
 
 .task-btn-delete {
     background: rgba(239,68,68,0.1);
     color: #ef4444;
-    border-color: rgba(239,68,68,0.3);
+    border-color: rgba(239,68,68,0.25);
     margin-left: auto;
 }
 
 .task-btn-delete:hover {
     background: rgba(239,68,68,0.2);
+    border-color: rgba(239,68,68,0.4);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(239,68,68,0.15);
+    box-shadow: 0 3px 8px rgba(239,68,68,0.15);
 }
 
 /* Priority dot */
